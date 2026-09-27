@@ -33,6 +33,13 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
+      - name: Debug environment
+        run: |
+          java -version
+          ./gradlew --version
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          ls -la $ANDROID_HOME/cmdline-tools/latest/bin/
+
       - name: Build Debug APK
         run: ./gradlew assembleDebug --no-daemon --stacktrace --info
 
