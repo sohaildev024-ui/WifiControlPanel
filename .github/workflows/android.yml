@@ -26,9 +26,20 @@ jobs:
 
       - name: Set up Android SDK
         run: |
-          echo "ANDROID_HOME=/usr/lib/android-sdk" >> $GITHUB_ENV
-          echo "/usr/lib/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
-          yes | /usr/lib/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
+          # Find Android SDK location
+          if [ -d "/usr/lib/android-sdk" ]; then
+            echo "ANDROID_HOME=/usr/lib/android-sdk" >> $GITHUB_ENV
+          elif [ -d "$HOME/Android/Sdk" ]; then
+            echo "ANDROID_HOME=$HOME/Android/Sdk" >> $GITHUB_ENV
+          elif [ -d "/opt/android-sdk" ]; then
+            echo "ANDROID_HOME=/opt/android-sdk" >> $GITHUB_ENV
+          else
+            echo "Android SDK not found in standard locations"
+            find / -name "sdkmanager" -type f 2>/dev/null | head -5
+            exit 1
+          fi
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
