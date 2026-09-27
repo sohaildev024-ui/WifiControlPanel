@@ -25,34 +25,18 @@ jobs:
           cache: gradle
 
       - name: Set up Android SDK
-        run: |
-          # Find Android SDK location
-          if [ -d "/usr/lib/android-sdk" ]; then
-            echo "ANDROID_HOME=/usr/lib/android-sdk" >> $GITHUB_ENV
-          elif [ -d "$HOME/Android/Sdk" ]; then
-            echo "ANDROID_HOME=$HOME/Android/Sdk" >> $GITHUB_ENV
-          elif [ -d "/opt/android-sdk" ]; then
-            echo "ANDROID_HOME=/opt/android-sdk" >> $GITHUB_ENV
-          else
-            echo "Android SDK not found in standard locations"
-            find / -name "sdkmanager" -type f 2>/dev/null | head -5
-            exit 1
-          fi
-          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+        uses: android-actions/setup-android@v3
+        with:
+          cmdline-tools-version: latest
+          accept-android-sdk-licenses: true
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      - name: Debug environment
-        run: |
-          java -version
-          ./gradlew --version
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          ls -la $ANDROID_HOME/cmdline-tools/latest/bin/
-
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        run: ./gradlew assembleDebug --no-daemon --stacktrace --info
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g -Dkotlin.daemon.jvm.options=-Xmx2g"
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
