@@ -46,9 +46,15 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
+        run: |
+          ./gradlew assembleDebug --no-daemon --stacktrace > build.log 2>&1
+          echo "Exit code: $?" >> build.log
         env:
           GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g -Dkotlin.daemon.jvm.options=-Xmx2g"
+
+      - name: Show build log
+        if: always()
+        run: cat build.log
 
       - name: Upload build log
         if: always()
