@@ -25,36 +25,25 @@ jobs:
           cache: gradle
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          cmdline-tools-version: latest
-          accept-android-sdk-licenses: true
+        run: |
+          # Find Android SDK location
+          if [ -d "/usr/lib/android-sdk" ]; then
+            echo "ANDROID_HOME=/usr/lib/android-sdk" >> $GITHUB_ENV
+          elif [ -d "$HOME/Android/Sdk" ]; then
+            echo "ANDROID_HOME=$HOME/Android/Sdk" >> $GITHUB_ENV
+          elif [ -d "/opt/android-sdk" ]; then
+            echo "ANDROID_HOME=/opt/android-sdk" >> $GITHUB_ENV
+          else
+            echo "Android SDK not found in standard locations"
+            find / -name "sdkmanager" -type f 2>/dev/null | head -5
+            exit 1
+          fi
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          # Accept licenses (ignore exit code as licenses may already be accepted)
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
-
-      - name: Gradle version check
-        run: ./gradlew --version 2>&1 | tee gradle_version.log
-
-      - name: Upload gradle version log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: gradle-version-log
-          path: gradle_version.log
-          retention-days: 7
-
-      - name: Gradle dependencies check
-        run: ./gradlew :app:dependencies --configuration debugCompileClasspath --no-daemon 2>&1 | tee deps.log
-        continue-on-error: true
-
-      - name: Upload deps log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: deps-log
-          path: deps.log
-          retention-days: 7
 
       - name: Build Debug APK
         run: ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
