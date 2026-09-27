@@ -46,20 +46,20 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --no-daemon --stacktrace > "${{ github.workspace }}/build.log" 2>&1; echo "Exit code: $?" >> "${{ github.workspace }}/build.log"
+        run: ./gradlew assembleDebug --no-daemon --stacktrace > build.log 2>&1; echo "Exit code: $?" >> build.log
         env:
           GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g -Dkotlin.daemon.jvm.options=-Xmx2g"
 
       - name: Show build log
         if: always()
-        run: cat "${{ github.workspace }}/build.log"
+        run: cat build.log
 
       - name: Upload build log
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-log
-          path: ${{ github.workspace }}/build.log
+          path: build.log
           retention-days: 7
 
       - name: Upload Debug APK
