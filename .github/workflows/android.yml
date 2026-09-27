@@ -33,8 +33,20 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
+      - name: Gradle dependencies check
+        run: ./gradlew :app:dependencies --configuration debugCompileClasspath --no-daemon 2>&1 | tee deps.log
+        continue-on-error: true
+
+      - name: Upload deps log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deps-log
+          path: deps.log
+          retention-days: 7
+
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --no-daemon --stacktrace --info 2>&1 | tee build.log
+        run: ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
         env:
           GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g -Dkotlin.daemon.jvm.options=-Xmx2g"
 
