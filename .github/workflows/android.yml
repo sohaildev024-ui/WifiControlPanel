@@ -2,16 +2,14 @@ name: Android Debug Build
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
       - name: Checkout repository
@@ -24,52 +22,14 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Set up Android SDK
-        run: |
-          # Find Android SDK location
-          if [ -d "/usr/lib/android-sdk" ]; then
-            echo "ANDROID_HOME=/usr/lib/android-sdk" >> $GITHUB_ENV
-          elif [ -d "$HOME/Android/Sdk" ]; then
-            echo "ANDROID_HOME=$HOME/Android/Sdk" >> $GITHUB_ENV
-          elif [ -d "/opt/android-sdk" ]; then
-            echo "ANDROID_HOME=/opt/android-sdk" >> $GITHUB_ENV
-          else
-            echo "Android SDK not found in standard locations"
-            find / -name "sdkmanager" -type f 2>/dev/null | head -5
-            exit 1
-          fi
-          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
-          # Accept licenses (ignore exit code as licenses may already be accepted)
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
+      - name: Make gradlew executable
+        run: chmod +x gradlew
 
       - name: Build Debug APK
-        run: |
-          set +e
-          ./gradlew assembleDebug --no-daemon --stacktrace > build.log 2>&1
-          EXIT_CODE=$?
-          echo "Exit code: $EXIT_CODE" >> build.log
-          exit $EXIT_CODE
-        env:
-          GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g -Dkotlin.daemon.jvm.options=-Xmx2g"
-
-      - name: Show build log
-        if: always()
-        run: cat build.log
-
-      - name: Upload build log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-log
-          path: build.log
-          retention-days: 7
+        run: ./gradlew assembleDebug --stacktrace
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug-apk
+          name: app-debug
           path: app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 7
