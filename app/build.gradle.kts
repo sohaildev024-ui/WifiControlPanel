@@ -78,8 +78,8 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.8.3")
 
     // Hilt DI
-    implementation("com.google.dagger:hilt-android:2.51.1")
-    kapt("com.google.dagger:hilt-compiler:2.51.1")
+    implementation("com.google.dagger:hilt-android:2.52")
+    kapt("com.google.dagger:hilt-compiler:2.52")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     // Coroutines & Flow
@@ -87,9 +87,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-flow:1.8.1")
 
     // Room Database
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
-    kapt("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-runtime:2.6.2")
+    implementation("androidx.room:room-ktx:2.6.2")
+    kapt("androidx.room:room-compiler:2.6.2")
 
     // DataStore Preferences
     implementation("androidx.datastore:datastore-preferences:1.1.1")
